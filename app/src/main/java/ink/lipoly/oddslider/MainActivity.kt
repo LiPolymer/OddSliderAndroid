@@ -231,11 +231,10 @@ fun OddSlider(modifier: Modifier = Modifier) {
                         "音量"
                     }
                     Column(
-                        verticalArrangement = Arrangement.Center
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.height(48.dp)
                     ) {
-                        Text(text = ct,
-                            modifier = Modifier.height(boxSideLengthDp)
-                        )
+                        Text(text = ct)
                     }
                 }
             }
