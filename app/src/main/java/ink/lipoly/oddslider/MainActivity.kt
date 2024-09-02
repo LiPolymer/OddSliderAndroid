@@ -30,10 +30,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.rounded.Build
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
@@ -47,9 +49,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import ink.lipoly.oddslider.ui.theme.OddSliderAndroidTheme
 import kotlin.math.roundToInt
@@ -75,14 +79,57 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun CheckPerm(){
-    if (!Settings.System.canWrite(LocalContext.current)) {
-        val intent = Intent(
-            Settings.ACTION_MANAGE_WRITE_SETTINGS,
-            Uri.parse("package:ink.lipoly.oddslider")
+    val context = LocalContext.current
+    if (!Settings.System.canWrite(context)) {
+        AlertDialog(
+            onDismissRequest = {
+                // 当用户点击对话框以外的地方或者按下系统返回键将会执行的代码
+            },
+            title = {
+                Text(
+                    text = "允许修改系统设置",
+                    fontWeight = FontWeight.W700
+                )
+            },
+            text = {
+                Text(
+                    text = "这是修改系统亮度所必须的权限\r\n没有此权限,本程序将无法运行\r\n赋予权限后请重新打开应用\r\nps:本程序在GitHub开源,点击“仓库”了解更多",
+                    fontSize = 16.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val intent = Intent(
+                            Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                            Uri.parse("package:ink.lipoly.oddslider")
+                        )
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(context,intent,null)
+                        exitProcess(0)
+                    },
+                ) {
+                    Text(
+                        "确认",
+                        fontWeight = FontWeight.W700
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        val uri = Uri.parse("https://github.com/LiPolymer/OddSliderAndroid")
+                        val intent = Intent(Intent.ACTION_VIEW, uri)
+                        startActivity(context,intent,null)
+                    }
+                ) {
+                    Text(
+                        "仓库",
+                        fontWeight = FontWeight.W700
+                    )
+                }
+            }
         )
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(LocalContext.current,intent,null)
-        exitProcess(0)
     }
 }
 
@@ -126,7 +173,7 @@ fun OddSlider(modifier: Modifier = Modifier) {
             Text(
                 text = "offsetX:$offsetX",
                 color = Color.Transparent
-            )//debug
+            )//Keep exist,trigger recomposition
             Box(
                 Modifier
                     .width(sliderLength)
@@ -234,7 +281,10 @@ fun OddSlider(modifier: Modifier = Modifier) {
                         verticalArrangement = Arrangement.Center,
                         modifier = Modifier.height(48.dp)
                     ) {
-                        Text(text = ct)
+                        Text(
+                            text = ct,
+                            color = Color.Gray
+                            )
                     }
                 }
             }
@@ -251,7 +301,7 @@ fun OddSlider(modifier: Modifier = Modifier) {
     showSystemUi = true
 )
 @Composable
-fun GreetingPreview() {
+fun Preview() {
     OddSliderAndroidTheme {
         OddSlider()
     }
